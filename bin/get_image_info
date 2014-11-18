@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+#
+# Get information about a Docker base image
+#
+
+IMAGE="$1"
+[[ "$IMAGE" == "" ]] && exit 1
+
+tmp=(${IMAGE//:/ })
+repository=${tmp[0]}
+release=${tmp[1]}
+
+tmp=(${repository//\// })
+if [[ "${tmp[1]}" == "" ]]
+then
+    distro="$repository"
+    image_type="official"
+else
+    distro="${tmp[1]}"
+    image_type="unofficial/${tmp[0]}"
+fi
+
+echo "$repository $distro $release $image_type"
+

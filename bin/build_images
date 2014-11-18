@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+#
+# Build Docker images using the Dockerfiles created 
+# with 'create_dockerfiles'
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATH=$DIR:$PATH
+
+BASE_IMAGES=$(cat base_images.txt)
+TIMESTAMP=$(date +"%Y%m%d%H%M")
+
+for base_image in $BASE_IMAGES
+do
+    read repository distro release image_type < <(get_image_info $base_image)
+    output_dir="dockerfiles/$image_type/$distro/$release"
+
+    # build Docker image
+    echo "Building Docker image from $output_dir/Dockerfile..."
+    docker_repo="nodejs_${distro}_$release"
+    docker build  --force-rm --tag "$docker_repo:$TIMESTAMP" $output_dir
+
+    # add 'latest' tag
+    image_id=$(docker images | grep $docker_repo | grep $TIMESTAMP | awk '{print $3}')
+    docker tag $image_id "$docker_repo:latest"
+done
+

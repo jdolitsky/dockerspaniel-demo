@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+#
+# Using base images listed in base_images.txt,
+# create custom Dockerfiles based on Spanielfile (JSON)
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATH=$DIR:./node_modules/.bin:$PATH
+
+BASE_IMAGES=$(cat base_images.txt)
+
+for base_image in $BASE_IMAGES
+do
+    read repository distro release image_type < <(get_image_info $base_image)
+    output_dir="dockerfiles/$image_type/$distro/$release"
+
+    # create Dockerfile
+    dockerspaniel                     \
+      --tag    $distro                \
+      --tag    $release               \
+      --base   $base_image            \
+      --output $output_dir/Dockerfile
+done
+

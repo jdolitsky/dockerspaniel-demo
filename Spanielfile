@@ -1,0 +1,51 @@
+{
+    "steps": [
+        {
+            "instruction": "RUN",
+            "arguments": "apt-get update && apt-get install -y curl",
+            "only_one": [
+                "debian",
+                "ubuntu"
+            ]
+        },
+        {
+            "instruction": "RUN",
+            "arguments": "curl -sL https://deb.nodesource.com/setup | bash -",
+            "only_one": [
+                "debian",
+                "ubuntu"
+            ]
+        },
+        {
+            "instruction": "RUN",
+            "arguments": "curl -sL https://rpm.nodesource.com/setup | bash -",
+            "only_one": [
+                "centos",
+                "fedora"
+            ]
+        },
+        {
+            "instruction": "RUN",
+            "arguments": "apt-get install -y nodejs build-essential",
+            "only_one": [
+                "debian",
+                "ubuntu"
+            ]
+        },
+        {
+            "instruction": "RUN",
+            "arguments": "yum install -y nodejs gcc-c++ make",
+            "only_one": [
+                "centos",
+                "fedora"
+            ]
+        },    
+        {
+            "instruction": "RUN",
+            "arguments": "pacman --noconfirm -Sy nodejs python2",
+            "only": [
+                "archlinux"
+            ]
+        }
+    ]
+}

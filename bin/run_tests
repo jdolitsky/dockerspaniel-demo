@@ -1,0 +1,43 @@
+#!/bin/bash -e
+
+#
+# Clone app at $APP_URL, then run $BUILD_CMD in
+# each Docker image created with 'build_image',
+# saving output to build/$distro_$release/build.log
+#
+
+# change these to the url/command for your app
+APP_URL="https://github.com/jdolitsky/dockerspaniel.git"
+BUILD_CMD="npm install && npm test"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATH=$DIR:$PATH
+
+BASE_IMAGES=$(cat base_images.txt)
+
+# remove artifacts from previous build
+rm -rf build app
+
+echo "Fetching source at $APP_URL..."
+git clone $APP_URL app
+
+mkdir -p build
+
+for base_image in $BASE_IMAGES
+do
+    read repository distro release image_type < <(get_image_info $base_image)
+    docker_image="nodejs_${distro}_$release:latest"
+    build_dir="build/${distro}_$release"
+    cp -R app $build_dir
+    
+    echo "Running '$BUILD_CMD' in $docker_image..."
+    docker run                          \
+      --rm                              \
+      --privileged                      \
+      --volume $PWD/$build_dir:/tmp/app \
+      --workdir /tmp/app                \
+      $docker_image                     \
+      /bin/sh -c "$BUILD_CMD"           \
+      2>&1 | tee $build_dir/build.log
+done
+

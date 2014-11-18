@@ -1,0 +1,5 @@
+debian:wheezy
+ubuntu:14.04
+centos:centos7
+fedora:20
+base/archlinux:2014.07.03
